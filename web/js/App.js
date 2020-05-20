@@ -6,6 +6,10 @@ document.getElementById("showLogin").onclick = function(){
   toogleMenuActive("showLogin");
   authModule.printLoginForm();
 };
+document.getElementById("showLogin").onclick = function(){
+  toogleMenuActive("showLogin");
+  authModule.printLoginForm();
+};
 
 function toogleMenuActive(elementId){
   let activeElement = document.getElementById(elementId);

@@ -22,25 +22,26 @@ class AuthModule{
        document.getElementById('registration').onclick=function (){
             userModule.addNewUser();
        }
-        auth(){
-            let login = document.getElementById('login').value;
-            let password = document.getElementById('password').value;
-            let credential = {
-                "login": login,
-                "password": password
-            }
-            httpModule.http({url:'login', options: {method: 'POST', data: credential}})
-                    .then(function(response){
-                        if(response !== null && response.actionStatus === 'true'){
-                            document.getElementById('info').innerHTML='Вы вошли как '+ response.user.login;
-                            document.getElementById('content').innerHTML='';
-                        }else{
-                            document.getElementById('info').innerHTML='Войти не удалось';
-                        }
-                    });
-            
-            
-        }
+  }
+  auth(){
+      let login = document.getElementById('login').value;
+      let password = document.getElementById('password').value;
+      let credential = {
+          "login": login,
+          "password": password
+      }
+      httpModule.http({url:'login', options: {method: 'POST', data: credential}})
+              .then(function(response){
+                  if(response !== null && response.authStatus === 'true'){
+                      sessionStorage.setItem('user',JSON.stringify(response.user));
+                      document.getElementById('info').innerHTML='Вы вошли как '+ response.user.login;
+                      document.getElementById('content').innerHTML='';
+                  }else{
+                      document.getElementById('info').innerHTML='Войти не удалось';
+                  }
+              });
+
+
   }
 }
 let authModule = new AuthModule();

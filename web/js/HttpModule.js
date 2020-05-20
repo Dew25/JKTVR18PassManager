@@ -50,7 +50,7 @@ class HttpModule{
         return fetch(httpOptions.url, options)
                 .then(httpModule.status)
                 .then(httpModule.json)
-                .catch(ex) => console.log("Получена ошибка от сервера: ", ex));
+                .catch((ex) => console.log("Получена ошибка от сервера: ", ex));
     }
 }
 let httpModule = new HttpModule();
