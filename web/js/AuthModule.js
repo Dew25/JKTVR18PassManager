@@ -40,9 +40,43 @@ class AuthModule{
                       document.getElementById('info').innerHTML='Войти не удалось';
                   }
               });
-
+      authModule.authMenu();
 
   }
+  logout(){
+    httpModule.http({url:'logout', options: {method: 'GET'}})
+              .then(function(response){
+                  if(response !== null){
+                      if(sessionStorage.getItem('user') !== null){
+                        sessionStorage.removeItem('user');
+                      }
+                      authModule.authMenu();
+                      document.getElementById('info').innerHTML='Вы вышли';
+                      document.getElementById('content').innerHTML='';
+                  }else{
+                      document.getElementById('info').innerHTML='Выйти не удалось';
+                  }
+              });
+              
+  }
+  authMenu(){
+    let user = null;
+    if(sessionStorage.getItem('user') !== null){
+      user = JSON.parse(sessionStorage.getItem('user'));
+    }
+    if(user !== null){
+      document.getElementById("userProfile").style.display = 'block';
+      document.getElementById("userPasswords").style.display = 'block';
+      document.getElementById("sysout").style.display = 'block';
+      document.getElementById("showLogin").style.display = 'none';
+    }else{
+      document.getElementById("userProfile").style.display = 'none';
+      document.getElementById("userPasswords").style.display = 'none';
+      document.getElementById("sysout").style.display = 'none';
+      document.getElementById("showLogin").style.display = 'block';
+    }
+  }
+  
 }
 let authModule = new AuthModule();
 export {authModule};

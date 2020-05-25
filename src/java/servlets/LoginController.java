@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import jsonbuilders.UserJsonObjectBuilder;
 import session.UserFacade;
+import util.EncryptPass;
 
 /**
  *
@@ -30,7 +31,9 @@ import session.UserFacade;
  */
 @WebServlet(name = "LoginController", urlPatterns = {
     "/login",
+    "/logout",
     "/createUser"
+        
 })
 public class LoginController extends HttpServlet {
 
@@ -49,21 +52,66 @@ public class LoginController extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         request.setCharacterEncoding("UTF-8");
+        EncryptPass ep = new EncryptPass();
         JsonObject jsonObject = null;
         JsonObjectBuilder job = Json.createObjectBuilder();
         String path = request.getServletPath();
         switch (path) {
             case "/login":
-                
-                break;
-            case "/createUser":
                 JsonReader jsonReader = Json.createReader(request.getReader());
                 JsonObject jsonObjectFromForm = jsonReader.readObject();
+                String login = jsonObjectFromForm.getString("login");
+                String password = jsonObjectFromForm.getString("password");
+                if(login == null || "".equals(login)
+                        || password == null || "".equals(password)
+                        ){
+                    job.add("authStatus", "false")
+                            .add("user", "null")
+                            .add("data", "null");
+                    jsonObject = job.build();
+                    break;
+                }
+                User user = userFacade.findByLogin(login);
+                if(user == null){
+                   job.add("authStatus", "false")
+                            .add("user", "null")
+                            .add("data", "null");
+                    jsonObject = job.build();
+                    break; 
+                }
+                if(!ep.setEncryptPass(password, user.getSalts()).equals(user.getPassword())){
+                    job.add("authStatus", "false")
+                            .add("user", "null")
+                            .add("data", "null");
+                    jsonObject = job.build();
+                    break;
+                }
+                HttpSession session = request.getSession(true);
+                session.setAttribute("user", user);
+                UserJsonObjectBuilder ujob = new UserJsonObjectBuilder();
+                job.add("authStatus", "true")
+                   .add("user", ujob.createUserJsonObject(user))
+                   .add("data", "null");
+                jsonObject = job.build();
+                break;
+            case "/logout":
+                session = request.getSession(false);
+                if(session != null){
+                    session.invalidate();
+                    job.add("authStatus", "false")
+                        .add("user", "null")
+                        .add("data", "null");
+                    jsonObject = job.build();
+                }
+                break;
+            case "/createUser":
+                jsonReader = Json.createReader(request.getReader());
+                jsonObjectFromForm = jsonReader.readObject();
                 String firstname = jsonObjectFromForm.getString("firstname");
                 String surname = jsonObjectFromForm.getString("surname");
                 String email = jsonObjectFromForm.getString("email");
-                String login = jsonObjectFromForm.getString("login");
-                String password = jsonObjectFromForm.getString("password");
+                login = jsonObjectFromForm.getString("login");
+                password = jsonObjectFromForm.getString("password");
                 if(firstname == null || "".equals(firstname)
                         || surname == null || "".equals(surname)
                         || email == null || "".equals(email)
@@ -76,12 +124,23 @@ public class LoginController extends HttpServlet {
                     jsonObject = job.build();
                     break;
                 }
-                String salts = "";
-                User user = new User(firstname, surname, email, login, password, salts, true);
-                userFacade.create(user);
-                HttpSession session = request.getSession(true);
+                
+                String salts = ep.createSalts();
+                password = ep.setEncryptPass(password, salts);
+                user = new User(firstname, surname, email, login, password , salts, true);
+                try {
+                    userFacade.create(user);
+                } catch (Exception e) {
+                    job.add("authStatus", "false")
+                        .add("user", "null")
+                        .add("data", "null");
+                    jsonObject = job.build();
+                    break;
+                }
+
+                session = request.getSession(true);
                 session.setAttribute("user", user);
-                UserJsonObjectBuilder ujob = new UserJsonObjectBuilder();
+                ujob = new UserJsonObjectBuilder();
                 job.add("authStatus", "true")
                    .add("user", ujob.createUserJsonObject(user))
                    .add("data", "null");
@@ -89,6 +148,7 @@ public class LoginController extends HttpServlet {
                 break;
             
         }
+        //Преобразование json объекта в строку и отправка строки клиенту
         if(jsonObject != null){
             try (PrintWriter out = response.getWriter()) {
                 try (Writer writer = new StringWriter()){

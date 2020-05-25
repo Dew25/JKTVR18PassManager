@@ -1,4 +1,5 @@
 import {httpModule} from './HttpModule.js'; 
+import {authModule} from './authModule.js';
 class UserModule{
     addNewUser(){
         document.getElementById('content').innerHTML =
@@ -47,9 +48,14 @@ class UserModule{
                       document.getElementById('info').innerHTML='Вы вошли как '+ response.user.login;
                       document.getElementById('content').innerHTML='';
                   }else{
-                      document.getElementById('info').innerHTML='Зарегистрироваться не удалось';
+                      if(response !== null){
+                        document.getElementById('info').innerHTML="Email или login уже используется";
+                      }else{
+                        document.getElementById('info').innerHTML='Зарегистрироваться не удалось';
+                      }
                   }
               });
+      authModule.authMenu();
     }
 }
 let userModule = new UserModule();

@@ -7,6 +7,7 @@ package entity;
 
 import java.io.Serializable;
 import java.util.Objects;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -25,7 +26,9 @@ public class User implements Serializable {
     private Long id;
     private String firstname;
     private String surname;
+    @Column(unique = true)
     private String email;
+    @Column(unique = true)
     private String login;
     private String password;
     private String salts;
