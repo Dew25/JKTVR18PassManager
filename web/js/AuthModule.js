@@ -39,8 +39,8 @@ class AuthModule{
                   }else{
                       document.getElementById('info').innerHTML='Войти не удалось';
                   }
+                  authModule.authMenu();
               });
-      authModule.authMenu();
 
   }
   logout(){
@@ -66,12 +66,14 @@ class AuthModule{
     }
     if(user !== null){
       document.getElementById("userProfile").style.display = 'block';
-      document.getElementById("userPasswords").style.display = 'block';
+      document.getElementById("resources").style.display = 'block';
+      document.getElementById("addResource").style.display = 'block';
       document.getElementById("sysout").style.display = 'block';
       document.getElementById("showLogin").style.display = 'none';
     }else{
       document.getElementById("userProfile").style.display = 'none';
-      document.getElementById("userPasswords").style.display = 'none';
+      document.getElementById("resources").style.display = 'none';
+      document.getElementById("addResource").style.display = 'none';
       document.getElementById("sysout").style.display = 'none';
       document.getElementById("showLogin").style.display = 'block';
     }

@@ -57,6 +57,42 @@ class UserModule{
               });
       authModule.authMenu();
     }
+    printProfileForm(){
+      let user = JSON.parse(sessionStorage.getItem('user'));
+      document.getElementById('content').innerHTML =
+            `<div class="w-100 d-flex justify-content-center">
+                <div class="card border-primary p-2" style="max-width: 60em;">
+                   <div class="card-header text-center">Профиль пользователя</div>
+                   <div class="card-body">
+                     <p class="card-text d-flex justify-content-between">Имя: <input class="ml-2" type="text" id="firstname" disabled value="${user.firstname}"></p>
+                     <p class="card-text d-flex justify-content-between">Фамилия: <input class="ml-2" type="text" id="surname" disabled value="${user.surname}"></p>
+                     <p class="card-text d-flex justify-content-between">Email: <input class="ml-2" type="text" id="email" disabled value=${user.email}></p>
+                     <p class="card-text d-flex justify-content-between">Логин: <input class="ml-2" type="text" id="login" disabled value=${user.login}></p>
+                     <p class="card-text d-flex justify-content-between">Пароль: <input class="ml-2" type="text" id="password1" disabled ></p>
+                     <p class="card-text d-flex justify-content-between">Повторите пароль: <input class="ml-2" type="text" id="password2" disabled ></p>
+                     <p class="card-text">
+                        <button class="btn btn-light w-100" type="button" id="btnEnableChange">Изменить</button>
+                        <button class="btn btn-light w-100" style="display: none;" type="button" id="btnWriteChange">Записать изменения</button>
+                     </p>
+                   </div>
+                </div>
+              </div>`;
+      document.getElementById('btnEnableChange').onclick = function(){
+        userModule.inputEnableChange();
+      }
+    }
+    inputEnableChange(){
+      document.getElementById('btnWriteChange').style.display="block";
+      document.getElementById('btnEnableChange').style.display="none";
+      document.getElementById('firstname').removeAttribute("disabled");
+      document.getElementById('surname').removeAttribute("disabled");
+      document.getElementById('email').removeAttribute("disabled");
+      document.getElementById('login').removeAttribute("disabled");
+      document.getElementById('password1').removeAttribute("disabled");
+      document.getElementById('password2').removeAttribute("disabled");
+      
+      
+    }
 }
 let userModule = new UserModule();
 export{userModule};

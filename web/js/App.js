@@ -1,14 +1,19 @@
 
 import {authModule} from './AuthModule.js';
 import {httpModule} from './HttpModule.js';
+import {userModule} from './UserModule.js';
 
-document.getElementById("showLogin").onclick = function(){
-  toogleMenuActive("showLogin");
-  authModule.printLoginForm();
+document.getElementById("userProfile").onclick = function(){
+  toogleMenuActive("userProfile");
+  userModule.printProfileForm();
 };
 document.getElementById("showLogin").onclick = function(){
   toogleMenuActive("showLogin");
   authModule.printLoginForm();
+};
+document.getElementById("sysout").onclick = function(){
+  toogleMenuActive("sysout");
+  authModule.logout();
 };
 
 function toogleMenuActive(elementId){
@@ -24,3 +29,4 @@ function toogleMenuActive(elementId){
     }
   }
 }
+authModule.authMenu();
