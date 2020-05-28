@@ -2,6 +2,7 @@ import {httpModule} from './HttpModule.js';
 import {authModule} from './authModule.js';
 class UserModule{
     addNewUser(){
+      document.getElementById('info').innerHTML='';
         document.getElementById('content').innerHTML =
             `<div class="w-100 d-flex justify-content-center">
                 <div class="card border-primary p-2" style="max-width: 60em;">
@@ -54,11 +55,13 @@ class UserModule{
                         document.getElementById('info').innerHTML='Зарегистрироваться не удалось';
                       }
                   }
+                  authModule.authMenu();
               });
-      authModule.authMenu();
+      
     }
     printProfileForm(){
       let user = JSON.parse(sessionStorage.getItem('user'));
+      document.getElementById('info').innerHTML='';
       document.getElementById('content').innerHTML =
             `<div class="w-100 d-flex justify-content-center">
                 <div class="card border-primary p-2" style="max-width: 60em;">
@@ -79,6 +82,9 @@ class UserModule{
               </div>`;
       document.getElementById('btnEnableChange').onclick = function(){
         userModule.inputEnableChange();
+        document.getElementById("btnWriteChange").onclick = function (){
+          userModule.writeChangeProfile();
+        }
       }
     }
     inputEnableChange(){
@@ -90,8 +96,40 @@ class UserModule{
       document.getElementById('login').removeAttribute("disabled");
       document.getElementById('password1').removeAttribute("disabled");
       document.getElementById('password2').removeAttribute("disabled");
-      
-      
+    }
+    writeChangeProfile(){
+      let user = JSON.parse(sessionStorage.getItem('user'));
+      let firstname = document.getElementById('firstname').value;
+      let surname = document.getElementById('surname').value;
+      let email = document.getElementById('email').value;
+      let login = document.getElementById('login').value;
+      let password1 = document.getElementById('password1').value;
+      let password2 = document.getElementById('password2').value;
+      if(password1 !== password2){
+        document.getElementById('info').innerHTML="Не совпадают пароли";
+        document.getElementById('password1').value='';
+        document.getElementById('password2').value='';
+        return;
+      }
+      let newProfile = {
+        "id": user.id,
+        "firstname": firstname,
+        "surname": surname,
+        "email": email,
+        "login": login,
+        "password": password1,
+      }
+      httpModule.http({url:'changeProfile', options: {method: 'POST', data: newProfile}})
+              .then(function(response){
+                  if(response !== null && response.actionStatus === 'true'){
+                      sessionStorage.setItem('user',JSON.stringify(response.user));
+                      userModule.printProfileForm();
+                      document.getElementById('info').innerHTML='Изменения записаны';
+                  }else{
+                      userModule.printProfileForm();
+                      document.getElementById('info').innerHTML="Ошибка изменения профайла";
+                  }
+              });
     }
 }
 let userModule = new UserModule();

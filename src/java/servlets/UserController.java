@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.math.BigDecimal;
 import javax.ejb.EJB;
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -29,16 +30,12 @@ import util.EncryptPass;
  *
  * @author Melnikov
  */
-@WebServlet(name = "LoginController", urlPatterns = {
-    "/login",
-    "/logout",
-    "/createUser"
-        
-})
-public class LoginController extends HttpServlet {
+@WebServlet(name = "UserController", urlPatterns = {
+    "/changeProfile",
 
+})
+public class UserController extends HttpServlet {
     @EJB UserFacade userFacade;
-    
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -57,67 +54,19 @@ public class LoginController extends HttpServlet {
         JsonObjectBuilder job = Json.createObjectBuilder();
         String path = request.getServletPath();
         switch (path) {
-            case "/login":
+            case "/changeProfile":
                 JsonReader jsonReader = Json.createReader(request.getReader());
                 JsonObject jsonObjectFromForm = jsonReader.readObject();
-                String login = jsonObjectFromForm.getString("login");
-                String password = jsonObjectFromForm.getString("password");
-                if(login == null || "".equals(login)
-                        || password == null || "".equals(password)
-                        ){
-                    job.add("authStatus", "false")
-                            .add("user", "null")
-                            .add("data", "null");
-                    jsonObject = job.build();
-                    break;
-                }
-                User user = userFacade.findByLogin(login);
-                if(user == null){
-                   job.add("authStatus", "false")
-                            .add("user", "null")
-                            .add("data", "null");
-                    jsonObject = job.build();
-                    break; 
-                }
-                String encriptPass = ep.setEncryptPass(password, user.getSalts());
-                if(!encriptPass.equals(user.getPassword())){
-                    job.add("authStatus", "false")
-                            .add("user", "null")
-                            .add("data", "null");
-                    jsonObject = job.build();
-                    break;
-                }
-                HttpSession session = request.getSession(true);
-                session.setAttribute("user", user);
-                UserJsonObjectBuilder ujob = new UserJsonObjectBuilder();
-                job.add("authStatus", "true")
-                   .add("user", ujob.createUserJsonObject(user))
-                   .add("data", "null");
-                jsonObject = job.build();
-                break;
-            case "/logout":
-                session = request.getSession(false);
-                if(session != null){
-                    session.invalidate();
-                    job.add("authStatus", "false")
-                        .add("user", "null")
-                        .add("data", "null");
-                    jsonObject = job.build();
-                }
-                break;
-            case "/createUser":
-                jsonReader = Json.createReader(request.getReader());
-                jsonObjectFromForm = jsonReader.readObject();
+                Integer id = jsonObjectFromForm.getInt("id");
                 String firstname = jsonObjectFromForm.getString("firstname");
                 String surname = jsonObjectFromForm.getString("surname");
                 String email = jsonObjectFromForm.getString("email");
-                login = jsonObjectFromForm.getString("login");
-                password = jsonObjectFromForm.getString("password");
+                String login = jsonObjectFromForm.getString("login");
+                String password = jsonObjectFromForm.getString("password");
                 if(firstname == null || "".equals(firstname)
                         || surname == null || "".equals(surname)
                         || email == null || "".equals(email)
                         || login == null || "".equals(login)
-                        || password == null || "".equals(password)
                         ){
                     job.add("authStatus", "false")
                             .add("user", "null")
@@ -125,29 +74,34 @@ public class LoginController extends HttpServlet {
                     jsonObject = job.build();
                     break;
                 }
-                
-                String salts = ep.createSalts();
-                password = ep.setEncryptPass(password, salts);
-                user = new User(firstname, surname, email, login, password , salts, true);
+                User user = userFacade.find(Long.parseLong(id.toString()));
+                user.setFirstname(firstname);
+                user.setSurname(surname);
+                user.setEmail(email);
+                user.setLogin(login);
+                if(password != null && !"".equals(password)){
+                   password = ep.setEncryptPass(password, user.getSalts());
+                   user.setPassword(password);
+                }
                 try {
-                    userFacade.create(user);
+                    userFacade.edit(user);
                 } catch (Exception e) {
-                    job.add("authStatus", "false")
+                    job.add("authStatus", "true")
                         .add("user", "null")
-                        .add("data", "null");
+                        .add("data", "null")
+                        .add("actionStatus", "false");
                     jsonObject = job.build();
                     break;
                 }
-
-                session = request.getSession(true);
+                HttpSession session = request.getSession(false);
                 session.setAttribute("user", user);
-                ujob = new UserJsonObjectBuilder();
+                UserJsonObjectBuilder ujob = new UserJsonObjectBuilder();
                 job.add("authStatus", "true")
-                   .add("user", ujob.createUserJsonObject(user))
-                   .add("data", "null");
-                jsonObject = job.build();
+                        .add("user", ujob.createUserJsonObject(user))
+                        .add("data", "null")
+                        .add("actionStatus", "true");
+                    jsonObject = job.build();
                 break;
-            
         }
         //Преобразование json объекта в строку и отправка строки клиенту
         if(jsonObject != null){

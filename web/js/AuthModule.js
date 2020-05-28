@@ -1,9 +1,13 @@
 
 import {userModule} from './UserModule.js';
 import {httpModule} from './HttpModule.js';
-
+/**
+ * Выводит форму логина в тег content, Навешивает событие на кнопку id="btnEnter" и на ссылку id="registration"
+ * @type html
+ */
 class AuthModule{
   printLoginForm(){
+    document.getElementById('info').innerHTML='';
       document.getElementById('content').innerHTML =
             `<div class="w-100 d-flex justify-content-center">
                <div class="card border-primary p-2" style="max-width: 30rem;">
@@ -23,6 +27,10 @@ class AuthModule{
             userModule.addNewUser();
        }
   }
+  /**
+   * Посылает запрос 'login' на сервер и получает ожидание (promice), которое обрабатывает
+   * @returns html
+   */
   auth(){
       let login = document.getElementById('login').value;
       let password = document.getElementById('password').value;
@@ -43,6 +51,10 @@ class AuthModule{
               });
 
   }
+  /** 
+   * Посылает запрос logout на сервер, получает промис, который обрабатывает
+   * @returns html
+   */
   logout(){
     httpModule.http({url:'logout', options: {method: 'GET'}})
               .then(function(response){
@@ -59,6 +71,11 @@ class AuthModule{
               });
               
   }
+  /**
+   * В зависимости от наличия объекта user в sessionStorage переключает видимость
+   * пунктов меню.
+   * @returns изменения в представлении
+   */
   authMenu(){
     let user = null;
     if(sessionStorage.getItem('user') !== null){
