@@ -2,10 +2,16 @@
 import {authModule} from './AuthModule.js';
 import {httpModule} from './HttpModule.js';
 import {userModule} from './UserModule.js';
+import {resourcesModule} from './ResourcesModule.js';
 /**
  * Блок назначения действия на событие oncklick пунктов меню
  * 
  */
+
+document.getElementById("addResource").onclick = function(){
+  toogleMenuActive("addResource");
+  resourcesModule.printAddResourcesForm();
+};
 document.getElementById("userProfile").onclick = function(){
   toogleMenuActive("userProfile");
   userModule.printProfileForm();

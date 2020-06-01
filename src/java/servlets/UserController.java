@@ -5,6 +5,7 @@
  */
 package servlets;
 
+import entity.Resource;
 import entity.User;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -23,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import jsonbuilders.UserJsonObjectBuilder;
+import session.ResourceFacade;
 import session.UserFacade;
 import util.EncryptPass;
 
@@ -32,10 +34,12 @@ import util.EncryptPass;
  */
 @WebServlet(name = "UserController", urlPatterns = {
     "/changeProfile",
+    "/createResource",
 
 })
 public class UserController extends HttpServlet {
     @EJB UserFacade userFacade;
+    @EJB ResourceFacade resourceFacade;
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -52,6 +56,26 @@ public class UserController extends HttpServlet {
         EncryptPass ep = new EncryptPass();
         JsonObject jsonObject = null;
         JsonObjectBuilder job = Json.createObjectBuilder();
+        User user = null;
+        HttpSession session  = request.getSession();
+        if(session != null){
+            user = (User) session.getAttribute("user");
+        }
+        if(user == null){
+            job.add("authStatus", "false") // false
+                .add("actionStatus", "false")// "null"
+                .add("user", "null")// "null"
+                .add("data", "null");
+            try (Writer writer = new StringWriter()){
+                Json.createWriter(writer).write(job.build());
+                try (PrintWriter out = response.getWriter()) {
+                    out.println(jsonObject);  
+                    out.flush();
+                    return;
+                }
+            }
+            
+        }
         String path = request.getServletPath();
         switch (path) {
             case "/changeProfile":
@@ -74,14 +98,14 @@ public class UserController extends HttpServlet {
                     jsonObject = job.build();
                     break;
                 }
-                User user = userFacade.find(Long.parseLong(id.toString()));
-                user.setFirstname(firstname);
-                user.setSurname(surname);
-                user.setEmail(email);
-                user.setLogin(login);
+                User userProfile = userFacade.find(Long.parseLong(id.toString()));
+                userProfile.setFirstname(firstname);
+                userProfile.setSurname(surname);
+                userProfile.setEmail(email);
+                userProfile.setLogin(login);
                 if(password != null && !"".equals(password)){
-                   password = ep.setEncryptPass(password, user.getSalts());
-                   user.setPassword(password);
+                   password = ep.setEncryptPass(password, userProfile.getSalts());
+                   userProfile.setPassword(password);
                 }
                 try {
                     userFacade.edit(user);
@@ -93,13 +117,44 @@ public class UserController extends HttpServlet {
                     jsonObject = job.build();
                     break;
                 }
-                HttpSession session = request.getSession(false);
-                session.setAttribute("user", user);
+                session = request.getSession(false);
+                session.setAttribute("user", userProfile);
                 UserJsonObjectBuilder ujob = new UserJsonObjectBuilder();
                 job.add("authStatus", "true")
-                        .add("user", ujob.createUserJsonObject(user))
+                        .add("user", ujob.createUserJsonObject(userProfile))
                         .add("data", "null")
                         .add("actionStatus", "true");
+                    jsonObject = job.build();
+                break;
+            case "/createResource":
+                jsonReader = Json.createReader(request.getReader());
+                jsonObjectFromForm = jsonReader.readObject();
+                String resourceUrl = jsonObjectFromForm.getString("resourceUrl");
+                login = jsonObjectFromForm.getString("login");
+                password = jsonObjectFromForm.getString("password");
+                String description = jsonObjectFromForm.getString("description");
+                if(resourceUrl == null || "".equals(resourceUrl)
+                        || description == null || "".equals(description)
+                        || password == null || "".equals(password)
+                        || login == null || "".equals(login)
+                        ){
+                    job.add("actionStatus", "false")
+                            .add("user", "null")
+                            .add("data", "null");
+                    jsonObject = job.build();
+                    break;
+                }
+                Resource resource = new Resource(
+                    resourceUrl, 
+                    login, 
+                    password, 
+                    description,
+                    user
+                );
+                resourceFacade.create(resource);
+                job.add("actionStatus", "true")
+                            .add("user", "null")
+                            .add("data", "null");
                     jsonObject = job.build();
                 break;
         }

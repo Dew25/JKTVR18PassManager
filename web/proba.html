@@ -34,20 +34,35 @@
       </div>
       <p id="info" class="w-100 text-center">&nbsp;</p>
       <div id="content">
-        <div class="w-100 d-flex justify-content-center">
-           <div class="card border-primary p-2" style="max-width: 60em;">
-              <div class="card-header text-center">Заполните все поля</div>
-              <div class="card-body">
-                <p class="card-text d-flex justify-content-between">Имя: <input class="ml-2" type="text" id="firstname"></p>
-                <p class="card-text d-flex justify-content-between">Фамилия: <input class="ml-2" type="text" id="surname"></p>
-                <p class="card-text d-flex justify-content-between">Email: <input class="ml-2" type="text" id="email"></p>
-                <p class="card-text d-flex justify-content-between">Логин: <input class="ml-2" type="text" id="login"></p>
-                <p class="card-text d-flex justify-content-between">Пароль: <input class="ml-2" type="text" id="password1"></p>
-                <p class="card-text d-flex justify-content-between">Повторите пароль: <input class="ml-2" type="text" id="password2"></p>
-                <p class="card-text"><button class="btn btn-light w-100" type="button" id="btnRegistration">Зарегистрировать</button</p>
-              </div>
-           </div>
-         </div>
+        <div class="row w-100 d-flex justify-content-center">
+          <div class="card w-50 border-primary p-2">
+             <div class="card-header text-center">Добавление ресурса</div>
+             <div class="card-body">
+               <table class="w-100">
+                 <tr>
+                   <td class="d-flex justify-content-start">Адрес ресурса:</td>
+                   <td class="d-flex justify-content-start"><input class="w-100" type="text" id="resource-url"  value=""></td>
+                 </tr>
+                 <tr>
+                   <td class="d-flex justify-content-start">Логин:</td>
+                   <td class="d-flex justify-content-start"><input class="w-50" type="text" id="login"  value=""></td>
+                 </tr>
+                 <tr>
+                   <td class="d-flex justify-content-start">Пароль:</td>
+                   <td class="d-flex justify-content-start"><input class="w-50" type="text" id="password"  value=""></td>
+                 </tr>
+                 <tr>
+                   <td class="d-flex justify-content-start">Описание:</td>
+                   <td class="d-flex justify-content-start"><textarea class="form-control" aria-label="Описание" id="description"></textarea></td>
+                 </tr>
+
+               </table>
+               <p class="card-text">
+                  <button class="btn btn-light w-100 mt-4" type="button" id="btnEnableChange">Добавить</button>
+               </p>
+             </div>
+          </div>
+        </div>
       </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
