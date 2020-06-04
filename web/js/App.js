@@ -8,6 +8,10 @@ import {resourcesModule} from './ResourcesModule.js';
  * 
  */
 
+document.getElementById("resources").onclick = function(){
+  toogleMenuActive("resources");
+  resourcesModule.getListAccounts();
+};
 document.getElementById("addResource").onclick = function(){
   toogleMenuActive("addResource");
   resourcesModule.printAddResourcesForm();

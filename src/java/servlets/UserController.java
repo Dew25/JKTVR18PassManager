@@ -12,8 +12,10 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.math.BigDecimal;
+import java.util.List;
 import javax.ejb.EJB;
 import javax.json.Json;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
@@ -23,6 +25,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import jsonbuilders.AccountJsonObjectBuilder;
 import jsonbuilders.UserJsonObjectBuilder;
 import session.ResourceFacade;
 import session.UserFacade;
@@ -35,6 +38,9 @@ import util.EncryptPass;
 @WebServlet(name = "UserController", urlPatterns = {
     "/changeProfile",
     "/createResource",
+    "/listAccounds",
+    "/resource",
+    
 
 })
 public class UserController extends HttpServlet {
@@ -155,6 +161,27 @@ public class UserController extends HttpServlet {
                 job.add("actionStatus", "true")
                             .add("user", "null")
                             .add("data", "null");
+                    jsonObject = job.build();
+                break;
+            case "/listAccounds":
+                List<Resource> listAccounts = resourceFacade.findByUser(user);
+                JsonArrayBuilder jab = Json.createArrayBuilder();
+                AccountJsonObjectBuilder ajb = new AccountJsonObjectBuilder();
+                for(Resource account : listAccounts){
+                    jab.add(ajb.createAccountJsonObject(account));
+                }
+                job.add("actionStatus", "true")
+                            .add("user", "null")
+                            .add("data", jab.build());
+                    jsonObject = job.build();
+                break;
+            case "/resource":
+                String accountId = request.getParameter("accountId");
+                resource = resourceFacade.find(Long.parseLong(accountId));
+                ajb = new AccountJsonObjectBuilder();
+                job.add("actionStatus", "true")
+                            .add("user", "null")
+                            .add("data", ajb.createAccountJsonObject(resource));
                     jsonObject = job.build();
                 break;
         }

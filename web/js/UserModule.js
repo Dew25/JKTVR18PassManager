@@ -63,9 +63,9 @@ class UserModule{
       let user = JSON.parse(sessionStorage.getItem('user'));
       document.getElementById('info').innerHTML='';
       document.getElementById('content').innerHTML =
-            `<div class="w-100 d-flex justify-content-center">
+            `<div class="row mt-5 w-100 d-flex justify-content-center">
                 <div class="card border-primary p-2" style="max-width: 60em;">
-                   <div class="card-header text-center">Профиль пользователя</div>
+                   <div class="card-header h3 mb-4 font-weight-normal text-center">Профиль пользователя</div>
                    <div class="card-body">
                      <p class="card-text d-flex justify-content-between">Имя: <input class="ml-2" type="text" id="firstname" disabled value="${user.firstname}"></p>
                      <p class="card-text d-flex justify-content-between">Фамилия: <input class="ml-2" type="text" id="surname" disabled value="${user.surname}"></p>
